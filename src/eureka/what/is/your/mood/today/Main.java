@@ -2,8 +2,11 @@ package eureka.what.is.your.mood.today;
 
 import eureka.what.is.your.mood.today.gui.Gui;
 import eureka.what.is.your.mood.today.utils.Config;
+import eureka.what.is.your.mood.today.utils.FileUtils;
 import eureka.what.is.your.mood.today.utils.Handler;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Optional;
@@ -18,6 +21,11 @@ public class Main {
     public static final String SEPARATOR = "@";
 
     public static void main(String[] args) {
+        if (!FileUtils.hasAssetsFolder()) {
+            FileUtils.downloadAssets();
+            return;
+        }
+
         Handler handler = config.load() != null ? config.load() : new Handler("emoji", null, new int[]{3, 3});
 
         new Gui(handler);

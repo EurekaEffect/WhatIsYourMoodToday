@@ -1,31 +1,39 @@
 package eureka.what.is.your.mood.today.utils;
 
-import eureka.what.is.your.mood.today.Main;
-
 import javax.swing.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class FileUtils {
-    public static List<File> getAssets(String path) {
-        ClassLoader classLoader = Main.class.getClassLoader();
-        URL resource = classLoader.getResource("assets/" + path);
+    private static final File assets = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\assets");
 
-        try {
-            return Files.walk(Paths.get(resource.toURI()))
-                    .filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .collect(Collectors.toList());
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
+    public static boolean hasAssetsFolder() {
+        return assets.exists();
+    }
+
+    public static void downloadAssets() {
+        assets.mkdir();
+        for (String path : List.of("batcat", "cat", "cats", "emoji", "stripecat")) {
+            new File(assets.toPath() + "\\" + path).mkdir();
         }
+    }
+
+    public static List<File> getAssets(String path) {
+        List<File> files = new ArrayList<>();
+
+
+
+        return files;
     }
 
     public static boolean corrupted(File file) {
