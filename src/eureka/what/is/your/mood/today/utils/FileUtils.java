@@ -1,36 +1,34 @@
 package eureka.what.is.your.mood.today.utils;
 
 import javax.swing.*;
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FileUtils {
-    private static final File assets = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\assets");
+    private static final File assets = new File(System.getProperty("user.home") + "\\AppData\\Roaming");
+    private static final String githubAssets = "https://raw.githubusercontent.com/EurekaEffect/WhatIsYourMoodToday/main/src/";
 
     public static boolean hasAssetsFolder() {
         return assets.exists();
     }
 
     public static void downloadAssets() {
-        assets.mkdir();
-        for (String path : List.of("batcat", "cat", "cats", "emoji", "stripecat")) {
+        List<String> paths = List.of("assets", "assets\\batcat", "assets\\cat", "assets\\cats", "assets\\emoji", "assets\\stripecat");
+
+        for (String path : paths) {
             new File(assets.toPath() + "\\" + path).mkdir();
+            if (path.equals("assets")) continue;
+
+
         }
     }
 
     public static List<File> getAssets(String path) {
         List<File> files = new ArrayList<>();
-
 
 
         return files;
