@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Main-Class: eureka.what.is.your.mood.today.Main

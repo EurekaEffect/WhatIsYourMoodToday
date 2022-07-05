@@ -7,6 +7,7 @@ import eureka.what.is.your.mood.today.utils.Handler;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +21,7 @@ public class Gui extends JFrame {
 
     private JButton calendar;
     private JButton apply;
+    private JButton reload;
 
     private final ButtonGroup group = new ButtonGroup();
     public static final List<Handler> handlers = List.of(
@@ -70,11 +72,30 @@ public class Gui extends JFrame {
         }));
 
         calendar = FileUtils.createButton("Calendar", () -> new Calendar(this.getX(), this.getY()), true);
+        reload = FileUtils.createButton("Reload", () -> {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(900);
+                    System.exit(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+
+            try {
+                Process process = Runtime.getRuntime().exec("java -jar " + FileUtils.launcher + " " + System.getProperty("java.class.path"));
+                process.waitFor();
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, true);
         apply = FileUtils.createButton("Apply", () -> {
-            if (chosenButton == null) return;
+            if (chosenButton == null || applied) return;
 
             apply.setText("Applied");
             applied = true;
+
+            Main.config.saveAll();
         }, true);
         handlers.forEach(handler -> {
             handler.item.setSelected(Objects.equals(handler.path, loading.path));
@@ -84,6 +105,8 @@ public class Gui extends JFrame {
         });
         jMenuBar.add(jMenu);
         jMenuBar.add(calendar);
+        jMenuBar.add(Box.createHorizontalGlue());
+        jMenuBar.add(reload);
         jMenuBar.add(apply);
 
         this.setJMenuBar(jMenuBar);

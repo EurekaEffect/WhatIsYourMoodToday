@@ -15,11 +15,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class FileUtils {
-    private static final File assets = new File(System.getProperty("user.home") + "\\AppData\\Roaming");
+    private static final File pcAssets = new File(System.getProperty("user.home") + "\\AppData\\Roaming");
     private static final String githubAssets = "https://raw.githubusercontent.com/EurekaEffect/WhatIsYourMoodToday/main/src/";
+    public static String launcher = pcAssets.toPath() + "/assets/launcher/Launcher.jar";
 
     public static boolean hasAssetsFolder() {
-        return new File(assets.toPath() + "\\assets").exists();
+        return new File(pcAssets.toPath() + "\\assets").exists();
     }
 
     public static void downloadAssets() throws InterruptedException {
@@ -29,36 +30,43 @@ public class FileUtils {
         paths.put("assets/cats/", 6);
         paths.put("assets/emoji/", 33);
         paths.put("assets/stripecat/", 20);
+        paths.put("assets/launcher", 0);
 
-        File mainDirectory = new File(assets.toPath() + "/" + "assets");
+        File mainDirectory = new File(pcAssets.toPath() + "/" + "assets");
         mainDirectory.mkdir();
 
         Thread thread = new Thread(() -> {
             for (String key : paths.keySet()) {
                 int value = paths.get(key);
 
-                File directory = new File(assets.toPath() + "/" + key);
+                File directory = new File(pcAssets.toPath() + "/" + key);
                 directory.mkdir();
 
                 for (int i = 0; i < value; i++) {
                     String currentPath = githubAssets + key + i + ".png";
 
-                    URL url;
-                    try {
-                        url = new URL(currentPath);
-                    } catch (MalformedURLException e) {
-                        throw new RuntimeException(e);
-                    }
-                    File file = new File(assets.toPath() + "/" + key + i + ".png");
-
-                    System.out.println(currentPath);
-                    System.out.println(file);
+                    URL url = urlOf(currentPath);
+                    File file = new File(pcAssets.toPath() + "/" + key + i + ".png");
                     download(url, file);
                 }
             }
+
+            String launcherPath = githubAssets + "/assets/launcher/Launcher.jar";
+            URL url = urlOf(launcherPath);
+            File file = new File(pcAssets.toPath() + launcherPath.replace(githubAssets, ""));
+
+            download(url, file);
         });
         thread.start();
         thread.join();
+    }
+
+    private static URL urlOf(String path) {
+        try {
+            return new URL(path);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void announce(String text) {
@@ -83,7 +91,7 @@ public class FileUtils {
     }
 
     public static List<File> getAssets(String path) {
-        File file = new File(assets.toPath() + "\\assets\\" + path);
+        File file = new File(pcAssets.toPath() + "\\assets\\" + path);
 
         return Arrays.stream(Objects.requireNonNull(file.listFiles())).toList();
     }

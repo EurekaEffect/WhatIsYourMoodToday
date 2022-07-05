@@ -1,17 +1,37 @@
 package eureka.what.is.your.mood.today.utils;
 
 import eureka.what.is.your.mood.today.Main;
+import eureka.what.is.your.mood.today.gui.Gui;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Config {
     private final String config = System.getProperty("user.home") + "\\AppData\\Roaming\\WIYMT.txt";
     private final String calendar = System.getProperty("user.home") + "\\AppData\\Roaming\\calendar.txt";
+
+    // All
+    public void saveAll() {
+        // Calendar
+        save(Gui.applied ? (Main.imagePath + Main.SEPARATOR + Main.date) : "None");
+
+        // Config
+        Optional<Handler> saving = Gui.handlers.stream().filter(h -> h.item.isSelected()).findFirst();
+        if (saving.isEmpty()) return;
+
+        String path = saving.get().path;
+        int[] data = saving.get().data;
+        save(
+                "path:" + path,
+                "data.1:" + data[0],
+                "data.2:" + data[1]
+        );
+    }
 
     // Loading
     public Handler load() {

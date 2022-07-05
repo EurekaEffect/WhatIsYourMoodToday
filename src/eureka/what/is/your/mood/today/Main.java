@@ -5,6 +5,7 @@ import eureka.what.is.your.mood.today.utils.Config;
 import eureka.what.is.your.mood.today.utils.FileUtils;
 import eureka.what.is.your.mood.today.utils.Handler;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Optional;
@@ -18,36 +19,17 @@ public class Main {
 
     public static final String SEPARATOR = "@";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException, IOException {
         if (!FileUtils.hasAssetsFolder()) {
-            try {
-                FileUtils.downloadAssets();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            FileUtils.announce("Downloading finished, reopening application...");
+            FileUtils.downloadAssets();
+
+            // Reopening application
+            Process process = Runtime.getRuntime().exec("java -jar " + FileUtils.launcher + " " + System.getProperty("java.class.path"));
+            process.waitFor();
             return;
         }
 
         Handler handler = config.load() != null ? config.load() : new Handler("emoji", null, new int[]{3, 3});
-
         new Gui(handler);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            // Calendar
-            config.save(Gui.applied ? (imagePath + SEPARATOR + date) : "None");
-
-            // Config
-            Optional<Handler> saving = Gui.handlers.stream().filter(h -> h.item.isSelected()).findFirst();
-            if (saving.isEmpty()) return;
-
-            String path = saving.get().path;
-            int[] data = saving.get().data;
-            config.save(
-                    "path:" + path,
-                    "data.1:" + data[0],
-                    "data.2:" + data[1]
-            );
-        }));
     }
 }
