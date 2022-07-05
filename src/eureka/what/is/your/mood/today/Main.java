@@ -5,24 +5,26 @@ import eureka.what.is.your.mood.today.utils.Config;
 import eureka.what.is.your.mood.today.utils.FileUtils;
 import eureka.what.is.your.mood.today.utils.Handler;
 
-import java.io.File;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Optional;
 
 public class Main {
-    private static final Calendar c = Calendar.getInstance();
+    private static final Calendar calendar = Calendar.getInstance();
     public static final Config config = new Config();
 
     public static String imagePath = null;
-    public static String date = c.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + c.get(Calendar.DAY_OF_MONTH);
+    public static String date = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH) + " " + calendar.get(Calendar.DAY_OF_MONTH);
 
     public static final String SEPARATOR = "@";
 
     public static void main(String[] args) {
         if (!FileUtils.hasAssetsFolder()) {
-            FileUtils.downloadAssets();
+            try {
+                FileUtils.downloadAssets();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             return;
         }
 
