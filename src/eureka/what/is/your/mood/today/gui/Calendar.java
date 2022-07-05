@@ -9,10 +9,10 @@ import java.util.List;
 public class Calendar extends JFrame {
     private final Color background = new Color(130, 160, 227);
 
-    public Calendar(int x, int y) {
+    public Calendar(List<Integer> window) {
         this.setTitle("Calendar");
 
-        this.setBounds(x, y, 700, 400);
+        this.setBounds(window.get(0), window.get(1), window.get(2), window.get(3));
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
         this.getContentPane().setBackground(background);
 

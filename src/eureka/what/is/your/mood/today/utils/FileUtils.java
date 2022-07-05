@@ -1,6 +1,8 @@
 package eureka.what.is.your.mood.today.utils;
 
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,12 +17,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class FileUtils {
-    private static final File pcAssets = new File(System.getProperty("user.home") + "\\AppData\\Roaming");
+    private static final File pcAssets = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\WhatIsYourMoodToday");
     private static final String githubAssets = "https://raw.githubusercontent.com/EurekaEffect/WhatIsYourMoodToday/main/src/";
     public static String launcher = pcAssets.toPath() + "/assets/launcher/Launcher.jar";
 
     public static boolean hasAssetsFolder() {
-        return new File(pcAssets.toPath() + "\\assets").exists();
+        return pcAssets.exists();
     }
 
     public static void downloadAssets() throws InterruptedException {
@@ -32,6 +34,7 @@ public class FileUtils {
         paths.put("assets/stripecat/", 20);
         paths.put("assets/launcher", 0);
 
+        pcAssets.mkdir();
         File mainDirectory = new File(pcAssets.toPath() + "/" + "assets");
         mainDirectory.mkdir();
 
@@ -112,7 +115,7 @@ public class FileUtils {
         }
     }
 
-    public static JButton createButton(Object object, Runnable actionListener, boolean transparent) {
+    public static JButton createButton(Object object, Runnable actionListener, boolean transparent, boolean mouseListener) {
         JButton button = null;
 
         if (object instanceof String name) button = new JButton(name);
@@ -127,6 +130,25 @@ public class FileUtils {
         }
 
         if (actionListener != null) button.addActionListener(action -> actionListener.run());
+
+        return mouseListener ? mouseListener(button) : button;
+    }
+
+    public static JButton mouseListener(JButton button) {
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                //jMenu.setBorder(BorderFactory.createEtchedBorder());
+                button.setBorderPainted(true);
+                super.mouseEntered(e);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBorderPainted(false);
+                super.mouseExited(e);
+            }
+        });
 
         return button;
     }

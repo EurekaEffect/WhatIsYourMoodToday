@@ -5,10 +5,11 @@ import eureka.what.is.your.mood.today.utils.Config;
 import eureka.what.is.your.mood.today.utils.FileUtils;
 import eureka.what.is.your.mood.today.utils.Handler;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 public class Main {
     private static final Calendar calendar = Calendar.getInstance();
@@ -29,7 +30,16 @@ public class Main {
             return;
         }
 
+        List<Integer> window = config.loadWindow();
         Handler handler = config.load() != null ? config.load() : new Handler("emoji", null, new int[]{3, 3});
-        new Gui(handler);
+        boolean dayPassed = config.dayPassed(date);
+
+        Gui gui = new Gui(handler, window, dayPassed);
+        if (!dayPassed) JOptionPane.showMessageDialog(null, "The day has not passed, come back tomorrow to leave your new mood :).", "Calendar", JOptionPane.INFORMATION_MESSAGE);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            config.saveWindow(gui.getX(), gui.getY(), gui.getWidth(), gui.getHeight());
+            if (Gui.applied) config.saveDate(date);
+        }));
     }
 }

@@ -6,6 +6,8 @@ import eureka.what.is.your.mood.today.utils.Handler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,10 +37,10 @@ public class Gui extends JFrame {
     private final Color background = new Color(130, 160, 227);
     public static boolean applied = false;
 
-    public Gui(Handler loading) {
+    public Gui(Handler loading, List<Integer> window, boolean dayPassed) {
         this.setTitle("What is your mood today?");
 
-        this.setBounds(50, 100, 700, 400);
+        this.setBounds(window.get(0), window.get(1), window.get(2), window.get(3));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new GridLayout(loading.data[0], loading.data[1]));
         this.getContentPane().setBackground(background);
@@ -62,8 +64,8 @@ public class Gui extends JFrame {
                 });
 
 
-        buttons.forEach(button -> button.addActionListener(action -> {
-            if (applied) return;
+        buttons.forEach(button -> button.addActionListener(action -> { // Adds blue border on button click
+            if (applied || !dayPassed) return;
             if (chosenButton != null) chosenButton.setBorder(null);
 
             chosenButton = button;
@@ -71,9 +73,9 @@ public class Gui extends JFrame {
             Main.imagePath = String.valueOf(chosenButton.getIcon());
         }));
 
-        calendar = FileUtils.createButton("Calendar", () -> new Calendar(this.getX(), this.getY()), true);
+        calendar = FileUtils.createButton("Calendar", () -> new Calendar(List.of(this.getX(), this.getY(), this.getWidth(), this.getHeight())), true, true);
         reload = FileUtils.createButton("Reload", () -> {
-            new Thread(() -> {
+            new Thread(() -> { // Runs a new thread for quiting from application.
                 try {
                     Thread.sleep(900);
                     System.exit(1);
@@ -84,11 +86,11 @@ public class Gui extends JFrame {
 
             try {
                 Process process = Runtime.getRuntime().exec("java -jar " + FileUtils.launcher + " " + System.getProperty("java.class.path"));
-                process.waitFor();
+                process.waitFor(); // For some reason you can't call System.exit() after this line, that's why I created thread above.
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }, true);
+        }, true, true);
         apply = FileUtils.createButton("Apply", () -> {
             if (chosenButton == null || applied) return;
 
@@ -96,13 +98,15 @@ public class Gui extends JFrame {
             applied = true;
 
             Main.config.saveAll();
-        }, true);
+        }, true, true);
+
         handlers.forEach(handler -> {
             handler.item.setSelected(Objects.equals(handler.path, loading.path));
 
             group.add(handler.item);
             jMenu.add(handler.item);
         });
+
         jMenuBar.add(jMenu);
         jMenuBar.add(calendar);
         jMenuBar.add(Box.createHorizontalGlue());

@@ -12,8 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Config {
-    private final String config = System.getProperty("user.home") + "\\AppData\\Roaming\\WIYMT.txt";
-    private final String calendar = System.getProperty("user.home") + "\\AppData\\Roaming\\calendar.txt";
+    private final File folder = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\WhatIsYourMoodToday");
 
     // All
     public void saveAll() {
@@ -50,10 +49,27 @@ public class Config {
         }
     }
 
+    public List<Integer> loadWindow() {
+        try {
+            return loadWindowData();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean dayPassed(String data) {
+        try {
+            return !loadDate().equals(data);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<JButton> loadCalendarData() throws FileNotFoundException {
         assert false;
 
-        File file = new File(calendar);
+        if (!folder.exists()) folder.mkdir();
+        File file = new File(folder.toPath() + "\\calendar.txt");
         if (!file.exists()) return null;
         List<JButton> buttons = new ArrayList<>();
 
@@ -66,7 +82,7 @@ public class Config {
             String path = split[0];
             String date = split[1];
 
-            JButton button = FileUtils.createButton(new ImageIcon(path), null, true);
+            JButton button = FileUtils.createButton(new ImageIcon(path), null, true, false);
             button.setText(date);
             button.setVerticalTextPosition(SwingConstants.TOP);
             button.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -77,9 +93,45 @@ public class Config {
         return buttons;
     }
 
+    private List<Integer> loadWindowData() throws FileNotFoundException {
+        if (!folder.exists()) folder.mkdir();
+
+        File file = new File(folder.toPath() + "\\window.txt");
+        if (!file.exists()) return List.of(50, 100, 700, 400);
+        List<Integer> list = new ArrayList<>();
+
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        br.lines().forEach(line -> {
+            int number = Integer.parseInt(line.substring(line.indexOf(":") + 1));
+
+            if (line.startsWith("x")) list.add(number);
+            if (line.startsWith("y")) list.add(number);
+            if (line.startsWith("width")) list.add(number);
+            if (line.startsWith("height")) list.add(number);
+        });
+
+        return list;
+    }
+
+    private String loadDate() throws FileNotFoundException {
+        if (!folder.exists()) folder.mkdir();
+
+        File file = new File(folder.toPath() + "\\date.txt");
+        if (!file.exists()) return "None";
+
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line = br.lines().toList().get(0);
+        String split = line.substring(line.indexOf(":") + 1);
+
+        return split;
+    }
+
     private Handler loadArgs() throws Exception {
-        File file = new File(config);
+        if (!folder.exists()) folder.mkdir();
+
+        File file = new File(folder.toPath() + "\\config.txt");
         if (!file.exists()) return null;
+
         AtomicReference<String> path = new AtomicReference<>();
         AtomicReference<Integer> d1 = new AtomicReference<>(3);
         AtomicReference<Integer> d2 = new AtomicReference<>(3);
@@ -117,8 +169,24 @@ public class Config {
         }
     }
 
+    public void saveWindow(int x, int y, int sizeX, int sizeY) {
+        try {
+            writeWindowData(x, y, sizeX, sizeY);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void saveDate(String data) {
+        try {
+            writeData(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void writeArgs(String... args) throws Exception {
-        File file = new File(config);
+        File file = new File(folder + "\\config.txt");
 
         if (!file.exists()) FileUtils.createFile(file.toPath());
         BufferedWriter bf = new BufferedWriter(new FileWriter(file));
@@ -131,7 +199,7 @@ public class Config {
     }
 
     private void writeCalendarData(String imagePath) throws IOException {
-        File file = new File(calendar);
+        File file = new File(folder + "\\calendar.txt");
 
         if (!file.exists()) FileUtils.createFile(file.toPath());
         BufferedReader br = new BufferedReader(new FileReader(file));
@@ -141,6 +209,29 @@ public class Config {
         for (String line : lines) bf.write(line + "\n");
 
         if (!"None".equals(imagePath)) bf.write(imagePath + "\n");
+        bf.close();
+    }
+
+    private void writeWindowData(int x, int y, int width, int height) throws IOException {
+        File file = new File(folder + "\\window.txt");
+
+        if (!file.exists()) FileUtils.createFile(file.toPath());
+        BufferedWriter bf = new BufferedWriter(new FileWriter(file));
+
+        bf.write("x:" + x + "\n");
+        bf.write("y:" + y + "\n");
+        bf.write("width:" + width + "\n");
+        bf.write("height:" + height + "\n");
+        bf.close();
+    }
+
+    private void writeData(String date) throws IOException {
+        File file = new File(folder + "\\date.txt");
+
+        if (!file.exists()) FileUtils.createFile(file.toPath());
+        BufferedWriter bf = new BufferedWriter(new FileWriter(file));
+
+        bf.write("date:" + date);
         bf.close();
     }
 }
