@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class FileUtils {
     private static final File assets = new File(System.getProperty("user.home") + "\\AppData\\Roaming");
@@ -21,15 +23,12 @@ public class FileUtils {
     }
 
     public static void downloadAssets() throws InterruptedException {
-        //List<String> paths = List.of("assets", "assets/batcat/", "assets/cat/", "assets/cats/", "assets/emoji/", "assets/stripecat/");
         HashMap<String, Integer> paths = new HashMap<>();
         paths.put("assets/batcat/", 10);
         paths.put("assets/cat/", 6);
         paths.put("assets/cats/", 6);
         paths.put("assets/emoji/", 33);
         paths.put("assets/stripecat/", 20);
-
-        System.out.println("Assets folder not found, downloading assets to " + assets.toPath().toString().concat("\\assets..."));
 
         File mainDirectory = new File(assets.toPath() + "/" + "assets");
         mainDirectory.mkdir();
@@ -60,9 +59,10 @@ public class FileUtils {
         });
         thread.start();
         thread.join();
+    }
 
-        System.out.println("Downloading finished, reopening application...");
-        // Running external jar, then closing current jar
+    public static void announce(String text) {
+        new Thread(() -> JOptionPane.showMessageDialog(null, text)).start();
     }
 
     public static void download(URL url, File file) {

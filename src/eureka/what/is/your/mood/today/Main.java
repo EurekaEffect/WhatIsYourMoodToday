@@ -25,6 +25,7 @@ public class Main {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            FileUtils.announce("Downloading finished, reopening application...");
             return;
         }
 
