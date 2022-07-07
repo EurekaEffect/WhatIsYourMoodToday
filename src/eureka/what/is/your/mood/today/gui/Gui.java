@@ -6,8 +6,6 @@ import eureka.what.is.your.mood.today.utils.Handler;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,11 +71,22 @@ public class Gui extends JFrame {
             Main.imagePath = String.valueOf(chosenButton.getIcon());
         }));
 
-        calendar = FileUtils.createButton("Calendar", () -> new Calendar(List.of(this.getX(), this.getY(), this.getWidth(), this.getHeight())), true, true);
+        calendar = FileUtils.createButton("Calendar", () -> {
+            List<JButton> buttons = Main.config.loadCalendar();
+            if (buttons == null || buttons.isEmpty()) return;
+
+            new Calendar(List.of(this.getX(), this.getY(), this.getWidth(), this.getHeight()));
+        }, true, true);
         reload = FileUtils.createButton("Reload", () -> {
+            Main.config.saveWindow(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            Main.config.saveAll(); // Saving before reload.
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {throw new RuntimeException(e);}
             new Thread(() -> { // Runs a new thread for quiting from application.
                 try {
-                    Thread.sleep(900);
+                    Thread.sleep(1500);
                     System.exit(1);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);

@@ -138,7 +138,6 @@ public class FileUtils {
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                //jMenu.setBorder(BorderFactory.createEtchedBorder());
                 button.setBorderPainted(true);
                 super.mouseEntered(e);
             }

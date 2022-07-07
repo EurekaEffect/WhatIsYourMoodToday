@@ -39,6 +39,7 @@ public class Main {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             config.saveWindow(gui.getX(), gui.getY(), gui.getWidth(), gui.getHeight());
+            config.saveAll();
             if (Gui.applied) config.saveDate(date);
         }));
     }
