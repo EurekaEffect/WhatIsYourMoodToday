@@ -7,7 +7,7 @@ public class Debug {
     protected List<String> pushed = new ArrayList<>();
 
     protected void debug(String text, Class<? extends Debug> clazz) {
-        String state = pushed(text) ? "pop " : "pushed ";
+        String state = pushed(text) ? "pop " : "push ";
 
         System.out.println("[" + clazz.getSimpleName() + "] " + state + text);
     }
