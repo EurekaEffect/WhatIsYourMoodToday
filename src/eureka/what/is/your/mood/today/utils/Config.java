@@ -11,11 +11,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Config {
+public class Config extends Debug {
     private final File folder = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\WhatIsYourMoodToday");
 
     // All
     public void saveAll() {
+        debug("saveAll();", Config.class); // Prevents being saved more than 1 times.
+        if (pushed("saveAll();")) return;
+
         // Calendar
         save(Gui.applied ? (Main.imagePath + Main.SEPARATOR + Main.date) : "None");
 
@@ -30,6 +33,8 @@ public class Config {
                 "data.1:" + data[0],
                 "data.2:" + data[1]
         );
+
+        push("saveAll();");
     }
 
     // Loading
